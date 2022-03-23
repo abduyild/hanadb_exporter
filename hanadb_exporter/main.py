@@ -26,6 +26,13 @@ from hanadb_exporter import db_manager
 from hanadb_exporter import utils
 from hanadb_exporter import secrets_manager
 
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.exporter.prometheus_remote_write import (
+    PrometheusRemoteWriteMetricsExporter
+)
+
+
 LOGGER = logging.getLogger(__name__)
 # in new systems /etc/ folder is not used in favor of /usr/etc
 CONFIG_FILES_DIR = [
@@ -172,9 +179,28 @@ def run():
     LOGGER.info('exporter successfully registered')
 
     LOGGER.info('starting to serve metrics')
-    start_http_server(config.get('exposition_port', 9668), config.get('listen_address', '0.0.0.0'))
-    while True:
-        time.sleep(1)
+
+    
+    # Sets the global MeterProvider instance
+    metrics.set_meter_provider(MeterProvider())
+
+    # The Meter is responsible for creating and recording metrics. Each meter has a unique name, which we set as the module's name here.
+    meter = metrics.get_meter(__name__)
+    bearer_token = os.environ['sysdig_api_token']
+    exporter = PrometheusRemoteWriteMetricsExporter(
+        endpoint="https://ingest.eu-gb.monitoring.cloud.ibm.com/prometheus/remote/write",
+        headers={
+            "X-Scope-Org-ID": "5",
+            "Authorization": 'Bearer {bearer_token}',
+        },)  # add other params as needed
+    metrics.get_meter_provider().start_pipeline(meter, exporter, 5)
+    #start_http_server(config.get('exposition_port', 9668), config.get('listen_address', '0.0.0.0'))
+    # while True:
+    #    time.sleep(1)
+
+    #start_http_server(config.get('exposition_port', 9668), config.get('listen_address', '0.0.0.0'))
+    #while True:
+    #    time.sleep(1)
 
 if __name__ == "__main__": # pragma: no cover
     run()
