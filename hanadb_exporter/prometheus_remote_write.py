@@ -1,3 +1,11 @@
+from typing import Sequence
+import snappy
+from opentelemetry.exporter.prometheus_remote_write.gen.remote_pb2 import WriteRequest
+from opentelemetry.exporter.prometheus_remote_write.gen.types_pb2 import (
+    TimeSeries,
+)
+
+
 class PrometheusRemoteWrite():
     def __init__(self, url, bearer):
         self.url = url
@@ -12,3 +20,9 @@ class PrometheusRemoteWrite():
             "Authorization": "Bearer " + self.bearer,
         }
         return headers
+
+    def build_message(self, timeseries: Sequence[TimeSeries]):
+        write_request = WriteRequest()
+        write_request.timeseries.extend(timeseries)
+        serialized_message = write_request.SerializeToString()
+        return snappy.compress(serialized_message)
