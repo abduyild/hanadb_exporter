@@ -8,11 +8,10 @@ SAP HANA database prometheus data exporter app
 :since: 2019-05-09
 """
 
-from hanadb_exporter import secrets_manager
-from hanadb_exporter import utils
-from hanadb_exporter import db_manager
-from hanadb_exporter import prometheus_exporter
-from hanadb_exporter import __version__
+import secrets_manager
+import utils
+import db_manager
+import prometheus_exporter
 from prometheus_client.core import REGISTRY
 import sys
 import os
@@ -139,7 +138,6 @@ def run():
     args = parse_arguments()
     if args.version:
         # pylint:disable=C0325
-        print("hanadb_exporter %s" % (__version__))
         return
     if args.config is not None:
         config = parse_config(args.config)

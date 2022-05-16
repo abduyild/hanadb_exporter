@@ -12,7 +12,7 @@ import logging
 import time
 
 from shaptools import hdb_connector
-from hanadb_exporter import utils
+import utils
 
 try:
     import certifi

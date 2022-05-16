@@ -12,8 +12,8 @@ import logging
 
 from prometheus_client import core
 from shaptools import hdb_connector
-from hanadb_exporter import prometheus_metrics
-from hanadb_exporter import utils
+import prometheus_metrics
+import utils
 
 
 class SapHanaCollectors(object):
