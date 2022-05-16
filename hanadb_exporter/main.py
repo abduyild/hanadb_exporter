@@ -8,25 +8,17 @@ SAP HANA database prometheus data exporter app
 :since: 2019-05-09
 """
 
-import imp
-from opentelemetry.exporter.prometheus_remote_write import (
-    PrometheusRemoteWriteMetricsExporter
-)
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry import metrics
 from hanadb_exporter import secrets_manager
 from hanadb_exporter import utils
 from hanadb_exporter import db_manager
 from hanadb_exporter import prometheus_exporter
 from hanadb_exporter import __version__
-from prometheus_client import start_http_server
 from prometheus_client.core import REGISTRY
 import sys
 import os
 import traceback
 import logging
 from logging.config import fileConfig
-import time
 import json
 import argparse
 from prometheus_remote_write import (
