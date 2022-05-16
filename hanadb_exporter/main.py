@@ -16,6 +16,19 @@ from logging.config import fileConfig
 import time
 import json
 import argparse
+from opentelemetry import metrics as metrics_api
+
+# getting the name of the directory
+# where the this file is present.
+current = os.path.dirname(os.path.realpath(__file__))
+  
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+  
+# adding the parent directory to 
+# the sys.path.
+sys.path.append(parent)
 
 from prometheus_client.core import REGISTRY
 from prometheus_client import start_http_server
@@ -182,18 +195,18 @@ def run():
 
     
     # Sets the global MeterProvider instance
-    metrics.set_meter_provider(MeterProvider())
+    metrics_api.set_meter_provider(MeterProvider())
 
     # The Meter is responsible for creating and recording metrics. Each meter has a unique name, which we set as the module's name here.
-    meter = metrics.get_meter(__name__)
-    bearer_token = os.environ['sysdig_api_token']
+    meter = metrics_api.get_meter(__name__)
+    bearer_token = os.environ['SYSDIG_TOKEN']
     exporter = PrometheusRemoteWriteMetricsExporter(
         endpoint="https://ingest.eu-gb.monitoring.cloud.ibm.com/prometheus/remote/write",
         headers={
             "X-Scope-Org-ID": "5",
-            "Authorization": 'Bearer {bearer_token}',
+            "Authorization": "Bearer " + bearer_token,
         },)  # add other params as needed
-    metrics.get_meter_provider().start_pipeline(meter, exporter, 5)
+    metrics_api.get_meter_provider().start_pipeline(meter, exporter, 30)
     #start_http_server(config.get('exposition_port', 9668), config.get('listen_address', '0.0.0.0'))
     # while True:
     #    time.sleep(1)
