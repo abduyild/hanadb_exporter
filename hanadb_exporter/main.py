@@ -77,10 +77,10 @@ def parse_arguments():
         "-c", "--config", help="Path to hanadb_exporter configuration file")
     parser.add_argument(
         "-m", "--metrics", help="Path to hanadb_exporter metrics file")
-    parser.add_argument('-t', nargs=1, dest='api_token', action='store',
-                        help='Sysdig API Token to use Prometheus Remote Write.')
-    parser.add_argument('-u', nargs=1, dest='url', action='store',
-                        help='Prometheus Remote Write complete url:path')
+    parser.add_argument(
+        "-t", "--token", dest='api_token', action='store', help='Sysdig API Token to use Prometheus Remote Write.')
+    parser.add_argument(
+        "-u", "--url", dest='url', action='store', help='Prometheus Remote Write complete url:path')
     parser.add_argument(
         "-d", "--daemon", action="store_true",
         help="Start the exporter as a systemd daemon. Only used when the the application "
