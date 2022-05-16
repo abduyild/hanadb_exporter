@@ -1,5 +1,9 @@
 from typing import Sequence
 import snappy
+import requests
+import logging
+from enum import Enum
+import sys
 from opentelemetry.exporter.prometheus_remote_write.gen.remote_pb2 import (
     WriteRequest,
 )
@@ -9,6 +13,14 @@ from opentelemetry.exporter.prometheus_remote_write.gen.types_pb2 import (
     TimeSeries,
 )
 import time
+
+
+logging.basicConfig(stream=sys.stdout, level=logging.WARNING)
+logger = logging.getLogger(__name__)
+
+class ExportResult(Enum):
+    SUCCESS = 0
+    FAILURE = 1
 
 
 class PrometheusRemoteWrite():
@@ -62,3 +74,19 @@ class PrometheusRemoteWrite():
         sample.value = value
         timeseries.samples.append(sample)
         return timeseries
+
+    
+    def send_message(self, message, headers):
+        try:
+            response = requests.post(
+                self.url,
+                data=message,
+                headers=headers,
+                timeout=self.timeout,
+            )
+            if not response.ok:
+                response.raise_for_status()
+        except requests.exceptions.RequestException as err:
+            logger.error("Export POST request failed with reason: %s", err)
+            return ExportResult.FAILURE
+        return ExportResult.SUCCESS
